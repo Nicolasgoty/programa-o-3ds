@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão de Clientes</title>
+    <title>Gestão de Clientes - V2</title>
+
     <style>
-        /* Estilos Globais e Cores Suaves */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -23,11 +23,10 @@
             padding: 20px;
         }
 
-        /* Container Centralizado com Sombras e Bordas Arredondadas */
         .container {
             background-color: #ffffff;
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
@@ -46,7 +45,6 @@
             padding-top: 20px;
         }
 
-        /* Formulário e Campos de Entrada */
         .form-group {
             display: flex;
             flex-direction: column;
@@ -63,7 +61,6 @@
             background-color: #fdfdfd;
         }
 
-        /* Foco Visual nos Inputs */
         input:focus {
             outline: none;
             border-color: #3498db;
@@ -71,7 +68,6 @@
             background-color: #fff;
         }
 
-        /* Botão Principal Otimizado */
         .btn-add {
             background-color: #3498db;
             color: white;
@@ -89,7 +85,6 @@
             background-color: #2980b9;
         }
 
-        /* Lista de Clientes com Separação Visual Clara */
         ul {
             list-style: none;
             display: flex;
@@ -124,7 +119,6 @@
             font-size: 16px;
         }
 
-        /* Alinhamento dos Botões de Ação */
         .actions {
             display: flex;
             justify-content: flex-end;
@@ -160,89 +154,185 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="container">
+
         <h2>Cadastro de Clientes</h2>
+
         <div class="form-group">
-            <input id="nome" placeholder="Nome completo" />
-            <input id="endereco" placeholder="Endereço residencial" />
-            <input id="telefone" placeholder="Telefone de contato" />
-            <button class="btn-add" onclick="adicionarCliente()">Adicionar Cliente</button>
+
+            <input
+                id="nome"
+                type="text"
+                placeholder="Nome completo"
+            />
+
+            <input
+                id="endereco"
+                type="text"
+                placeholder="Endereço residencial"
+            />
+
+            <input
+                id="telefone"
+                type="tel"
+                placeholder="Telefone de contato"
+            />
+
+            <button
+                id="btnSalvar"
+                class="btn-add"
+                onclick="adicionarCliente()"
+            >
+                Adicionar Cliente
+            </button>
+
         </div>
 
         <h3>Lista de Clientes</h3>
+
         <ul id="listaClientes"></ul>
+
     </div>
 
     <script>
+
         function carregarClientes() {
-            const clientes = JSON.parse(localStorage.getItem('clientes')) || [];
-            const lista = document.getElementById('listaClientes');
-            lista.innerHTML = "";
+
+            const clientes =
+                JSON.parse(localStorage.getItem('clientes')) || [];
+
+            const lista =
+                document.getElementById('listaClientes');
+
+            lista.innerHTML = '';
 
             clientes.forEach((cliente, index) => {
-                const item = document.createElement('li');
+
+                const item =
+                    document.createElement('li');
+
                 item.className = 'cliente-item';
-                
-                // Correção e melhoria visual dos itens da lista de forma organizada
+
                 item.innerHTML = `
                     <div class="cliente-info">
                         <strong>${cliente.nome}</strong><br>
                         📍 ${cliente.endereco}<br>
                         📞 ${cliente.telefone}
                     </div>
+
                     <div class="actions">
-                        <button class="btn-action btn-edit" onclick="editarCliente(${index})">Editar</button>
-                        <button class="btn-action btn-delete" onclick="excluirCliente(${index})">Excluir</button>
+
+                        <button
+                            class="btn-action btn-edit"
+                            onclick="editarCliente(${index})">
+                            Editar
+                        </button>
+
+                        <button
+                            class="btn-action btn-delete"
+                            onclick="excluirCliente(${index})">
+                            Excluir
+                        </button>
+
                     </div>
                 `;
+
                 lista.appendChild(item);
+
             });
+
         }
 
         function adicionarCliente() {
-            const nome = document.getElementById('nome').value.trim();
-            const endereco = document.getElementById('endereco').value.trim();
-            const telefone = document.getElementById('telefone').value.trim();
+
+            const nome =
+                document.getElementById('nome').value.trim();
+
+            const endereco =
+                document.getElementById('endereco').value.trim();
+
+            const telefone =
+                document.getElementById('telefone').value.trim();
 
             if (!nome || !endereco || !telefone) {
-                alert("Por favor, preencha todos os campos antes de salvar.");
+
+                alert(
+                    'Por favor, preencha todos os campos antes de salvar.'
+                );
+
                 return;
             }
 
-            const clientes = JSON.parse(localStorage.getItem('clientes')) || [];
-            clientes.push({ nome, endereco, telefone });
-            localStorage.setItem('clientes', JSON.stringify(clientes));
-            
-            // Limpa os campos após a inserção bem-sucedida
-            document.getElementById('nome').value = "";
-            document.getElementById('endereco').value = "";
-            document.getElementById('telefone').value = "";
+            const clientes =
+                JSON.parse(localStorage.getItem('clientes')) || [];
+
+            clientes.push({
+                nome,
+                endereco,
+                telefone
+            });
+
+            localStorage.setItem(
+                'clientes',
+                JSON.stringify(clientes)
+            );
+
+            limparFormulario();
 
             carregarClientes();
+
         }
 
         function excluirCliente(index) {
-            const clientes = JSON.parse(localStorage.getItem('clientes'));
+
+            const clientes =
+                JSON.parse(localStorage.getItem('clientes')) || [];
+
             clientes.splice(index, 1);
-            localStorage.setItem('clientes', JSON.stringify(clientes));
+
+            localStorage.setItem(
+                'clientes',
+                JSON.stringify(clientes)
+            );
+
             carregarClientes();
+
         }
 
         function editarCliente(index) {
-            const clientes = JSON.parse(localStorage.getItem('clientes'));
+
+            const clientes =
+                JSON.parse(localStorage.getItem('clientes')) || [];
+
             const cliente = clientes[index];
 
-            document.getElementById('nome').value = cliente.nome;
-            document.getElementById('endereco').value = cliente.endereco;
-            document.getElementById('telefone').value = cliente.telefone;
+            document.getElementById('nome').value =
+                cliente.nome;
+
+            document.getElementById('endereco').value =
+                cliente.endereco;
+
+            document.getElementById('telefone').value =
+                cliente.telefone;
 
             excluirCliente(index);
+
         }
 
-        // Executa a listagem inicial
+        function limparFormulario() {
+
+            document.getElementById('nome').value = '';
+            document.getElementById('endereco').value = '';
+            document.getElementById('telefone').value = '';
+
+        }
+
         carregarClientes();
+
     </script>
+
 </body>
 </html>
