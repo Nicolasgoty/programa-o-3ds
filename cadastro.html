@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Clientes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 600px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2, h3 { color: #333; }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+            margin-top: 5px;
+        }
+        button:hover { background-color: #218838; }
+        .btn-search { background-color: #007bff; }
+        .btn-search:hover { background-color: #0069d9; }
+        .btn-download { background-color: #17a2b8; }
+        .btn-download:hover { background-color: #138496; }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            padding: 10px;
+            background: #e9ecef;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        li:hover { background: #ced4da; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Cadastro de Clientes</h2>
+    
+    <!-- Formulário de Entrada de Dados -->
+    <div class="form-group">
+        <label for="clientId">ID (Automático):</label>
+        <input type="text" id="clientId" readonly placeholder="Gerado automaticamente">
+    </div>
+    <div class="form-group">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" placeholder="Digite o nome do cliente">
+    </div>
+    <div class="form-group">
+        <label for="email">E-mail:</label>
+        <input type="email" id="email" placeholder="Digite o e-mail do cliente">
+    </div>
+    
+    <button onclick="cadastrar_clientes()">Incluir Cliente</button>
+    <button class="btn-search" onclick="buscar_cliente_dialogo()">Buscar Cliente</button>
+    <button class="btn-download" onclick="baixar_arquivo_json()">Baixar arquivo JSON</button>
+
+    <h3>Lista de Clientes (Clique para preencher o formulário)</h3>
+    <ul id="listaClientes"></ul>
+</div>
+
+<script>
+    // --- 1. Classe Cliente ---
+    class Cliente {
+        constructor(id, nome, email) {
+            this.id = id;
+            this.nome = nome;
+            this.email = email;
+        }
+
+        // Método para converter os dados do cliente em JSON string
+        toJSON() {
+            return JSON.stringify({ id: this.id, nome: this.nome, email: this.email });
+        }
+    }
+
+    // Banco de dados em memória simulando o arquivo 'clientes.json'
+    let arquivo_clientes_json = [];
+
+    // --- 2. Limpeza do Arquivo no início do programa ---
+    function limpar_arquivo_inicio() {
+        arquivo_clientes_json = [];
+        console.log("O arquivo 'clientes.json' simulado foi limpo com sucesso no início do programa.");
+        listar_clientes();
+    }
+
+    // --- 3. Inclusão de Clientes ---
+    function incluir_cliente(nome, email) {
+        const novoId = arquivo_clientes_json.length + 1;
+        const novoCliente = new Cliente(novoId, nome, email);
+        
+        // Adiciona à lista temporária
+        arquivo_clientes_json.push(JSON.parse(novoCliente.toJSON()));
+        
+        // Salva os dados atualizados
+        salvar_cliente();
+    }
+
+    // --- 4. Salvar Clientes ---
+    function salvar_cliente() {
+        // Converte todo o array para formato JSON string simulando a persistência
+        const dadosProntosParaSalvar = JSON.stringify(arquivo_clientes_json, null, 2);
+        console.log("Dados gravados em 'clientes.json':\n", dadosProntosParaSalvar);
+        
+        // Atualiza a listagem na tela após salvar
+        listar_clientes();
+    }
+
+    // --- 5. Entrada de Dados ---
+    function cadastrar_clientes() {
+        const nomeInput = document.getElementById('nome').value.trim();
+        const emailInput = document.getElementById('email').value.trim();
+
+        if (nomeInput === "" || emailInput === "") {
+            alert("Por favor, preencha todos os campos antes de incluir.");
+            return;
+        }
+
+        incluir_cliente(nomeInput, emailInput);
+
+        // Limpa os campos do formulário para o próximo cadastro
+        document.getElementById('clientId').value = "";
+        document.getElementById('nome').value = "";
+        document.getElementById('email').value = "";
+    }
+
+    // --- 6. Listagem de Clientes e Interatividade ---
+    function listar_clientes() {
+        const ul = document.getElementById('listaClientes');
+        ul.innerHTML = ""; // Limpa a lista visual atual
+
+        arquivo_clientes_json.forEach(cliente => {
+            const li = document.createElement('li');
+            li.textContent = `ID: ${cliente.id} | Nome: ${cliente.nome} | E-mail: ${cliente.email}`;
+            
+            // Requisito: A seleção de um cliente da lista preenche automaticamente o formulário
+            li.onclick = function() {
+                document.getElementById('clientId').value = cliente.id;
+                document.getElementById('nome').value = cliente.nome;
+                document.getElementById('email').value = cliente.email;
+            };
+
+            ul.appendChild(li);
+        });
+    }
+
+    // --- 7. Caixa de diálogo para busca ---
+    function buscar_cliente_dialogo() {
+        const termoBusca = prompt("Digite o ID ou o Nome do cliente que deseja buscar:");
+        
+        if (!termoBusca) return;
+
+        // Busca por ID correspondente ou por parte do nome (case-insensitive)
+        const clienteEncontrado = arquivo_clientes_json.find(c => 
+            c.id.toString() === termoBusca.trim() || 
+            c.nome.toLowerCase().includes(termoBusca.toLowerCase().trim())
+        );
+
+        if (clienteEncontrado) {
+            alert(`Cliente Encontrado!\nID: ${clienteEncontrado.id}\nNome: ${clienteEncontrado.nome}\nE-mail: ${clienteEncontrado.email}`);
+            
+            // Preenche automaticamente o formulário com o cliente encontrado
+            document.getElementById('clientId').value = clienteEncontrado.id;
+            document.getElementById('nome').value = clienteEncontrado.nome;
+            document.getElementById('email').value = clienteEncontrado.email;
+        } else {
+            alert("Cliente não encontrado.");
+        }
+    }
+
+    // Função extra útil: permite gerar e baixar o arquivo 'clientes.json' real no seu computador
+    function baixar_arquivo_json() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(arquivo_clientes_json, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", "clientes.json");
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
+
+    // Executa a limpeza do arquivo assim que a página carrega
+    window.onload = limpar_arquivo_inicio;
+</script>
+
+</body>
+</html>
